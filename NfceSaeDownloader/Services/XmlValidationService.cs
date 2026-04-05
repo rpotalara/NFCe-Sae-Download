@@ -24,7 +24,6 @@ namespace NfceSaeDownloader.Services
             var schemaPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Schemas", schemaFileName);
             if (!File.Exists(schemaPath))
             {
-                // Fallback para diretório de desenvolvimento se BaseDirectory não funcionar como esperado em testes
                 schemaPath = Path.Combine("Schemas", schemaFileName);
                 if (!File.Exists(schemaPath))
                 {
