@@ -53,6 +53,7 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Infrastructure\AppSettingsStore.cs" />
+    <Compile Include="Infrastructure\SaeConstants.cs" />
     <Compile Include="Infrastructure\StateRepository.cs" />
     <Compile Include="Models\DownloadResult.cs" />
     <Compile Include="Models\NfceChaveInfo.cs" />
