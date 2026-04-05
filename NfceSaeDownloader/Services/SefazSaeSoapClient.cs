@@ -59,7 +59,8 @@ namespace NfceSaeDownloader.Services
 
         private string BuildSoapEnvelope(XElement payload)
         {
-            XNamespace soap = "http://schemas.xmlsoap.org/soap/envelope/";
+            // Alterado para SOAP 1.2 conforme exigência do servidor SEFAZ
+            XNamespace soap = "http://www.w3.org/2003/05/soap-envelope";
             var doc = new XDocument(
                 new XDeclaration("1.0", "utf-8", null),
                 new XElement(soap + "Envelope",
@@ -75,11 +76,12 @@ namespace NfceSaeDownloader.Services
 
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = "POST";
-            request.ContentType = "text/xml; charset=utf-8";
-            request.Accept = "text/xml";
+            // SOAP 1.2 utiliza application/soap+xml e o parâmetro action no Content-Type
+            request.ContentType = string.Format("application/soap+xml; charset=utf-8; action=\"{0}\"", soapAction);
+            request.Accept = "application/soap+xml, text/xml";
             request.Timeout = _config.TimeoutMs;
             request.ReadWriteTimeout = _config.TimeoutMs;
-            request.Headers.Add("SOAPAction", "\"" + soapAction + "\"");
+
             request.ClientCertificates.Add(certificate);
             request.KeepAlive = true;
             request.ProtocolVersion = HttpVersion.Version11;
