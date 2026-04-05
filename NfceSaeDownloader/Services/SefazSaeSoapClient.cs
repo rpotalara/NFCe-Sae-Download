@@ -37,7 +37,8 @@ namespace NfceSaeDownloader.Services
 
             XmlValidationService.ValidarListagem(payload);
 
-            var envelope = BuildSoapEnvelope(payload);
+            var wrapped = new XElement(XName.Get("nfeDadosMsg", SaeConstants.ListagemServiceNamespace), payload);
+            var envelope = BuildSoapEnvelope(wrapped);
             var xml = PostSoap(_config.UrlListagem, SaeConstants.ListagemSoapAction, envelope, _config.Certificado);
             return ParseListagem(xml);
         }
@@ -52,7 +53,8 @@ namespace NfceSaeDownloader.Services
 
             XmlValidationService.ValidarDownload(payload);
 
-            var envelope = BuildSoapEnvelope(payload);
+            var wrapped = new XElement(XName.Get("nfeDadosMsg", SaeConstants.DownloadServiceNamespace), payload);
+            var envelope = BuildSoapEnvelope(wrapped);
             var xml = PostSoap(_config.UrlDownload, SaeConstants.DownloadSoapAction, envelope, _config.Certificado);
             return ParseDownload(xml);
         }
