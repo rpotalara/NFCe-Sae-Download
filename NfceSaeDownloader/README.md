@@ -1,36 +1,40 @@
-# SAE-NFC-e Downloader - SEFAZ/SP
+# NFC-e SAE Downloader (São Paulo)
 
-Projeto WinForms (.NET Framework 4.6.2) para consultar chaves e baixar XMLs de NFC-e modelo 65 por meio do SAE-NFC-e da SEFAZ/SP.
+Aplicação Windows Forms desenvolvida em **.NET Framework 4.6.2** para realizar a listagem de chaves e o download de arquivos XML da Nota Fiscal de Consumidor Eletrônica (**NFC-e, modelo 65**) através do Sistema de Apoio à Escrituração (SAE) da SEFAZ-SP.
 
-## O que o projeto faz
+## 🚀 Funcionalidades
 
-- consulta o serviço `NFCeListagemChaves` por período;
-- filtra localmente por número e série extraídos da chave de acesso;
-- baixa os XMLs pelo serviço `NFCeDownloadXML`;
-- salva os arquivos em disco;
-- grava cursor incremental em `sae-state.xml`;
-- auto divide o período quando a SEFAZ retornar `cStat=101` (lista incompleta);
-- grava log em `logs\sae-nfce.log`.
+-   **Listagem de Chaves:** Consulta chaves de acesso emitidas por um CNPJ em um período específico.
+-   **Download de XML:** Recupera o XML completo (incluindo eventos) de NFC-es autorizadas.
+-   **Validação XSD Automática:** Valida todas as mensagens de saída contra os schemas oficiais da SEFAZ antes do envio.
+-   **Gerenciamento de Limites (cStat 101):** Implementa lógica automática de subdivisão de períodos quando a SEFAZ retorna lista incompleta (limite de 2000 chaves).
+-   **Suporte a SOAP 1.2:** Comunicação robusta seguindo os padrões modernos exigidos pela SEFAZ-SP.
+-   **Filtros de Interface:** Filtragem local por número de documento e série.
+-   **Sistema de Log:** Registro detalhado de operações e erros para auditoria.
 
-## Observações importantes
+## 🛠️ Requisitos Técnicos
 
-1. O serviço exige certificado digital e-CNPJ do próprio contribuinte.
-2. O SAE trabalha com consulta de chaves por período e download por chave, não por número direto.
-3. O projeto usa envelopes SOAP montados manualmente. Caso a SEFAZ altere namespace ou SOAPAction, ajuste no `App.config`.
-4. O cursor incremental foi implementado por `dhUltimaEmissao`, pois a especificação do SAE publicada pela SEFAZ/SP expõe `dhEmisUltNfce` e não NSU.
+-   **.NET Framework 4.6.2** ou superior.
+-   **Certificado Digital e-CNPJ:** Obrigatório para autenticação nos WebServices (deve estar instalado no repositório do Windows).
+-   **Acesso à Internet:** Para comunicação com os endereços da Fazenda SP.
 
-## Como usar
+## 📂 Estrutura do Projeto
 
-1. Abra `NfceSaeDownloader.sln` no Visual Studio 2022.
-2. Compile em .NET Framework 4.6.2.
-3. Selecione ambiente, store, certificado e período.
-4. Clique em **Consultar chaves**.
-5. Marque as linhas desejadas ou use **Baixar todos**.
+-   `Infrastructure/`: Configurações centrais, constantes de namespace e repositório de estado (cursor).
+-   `Services/`: Lógica de comunicação SOAP, validação de XML e serviço de certificados.
+-   `Models/`: Classes de representação de dados para requisições e respostas.
+-   `Schemas/`: Arquivos XSD oficiais (`nfceListagemChaves_100.xsd`, etc.) integrados ao build.
+-   `Forms/`: Interface gráfica do usuário.
 
-## Estrutura
+## ⚙️ Configuração e Uso
 
-- `Forms\MainForm.*`: interface gráfica.
-- `Services\SefazSaeSoapClient.cs`: consumo SOAP direto dos webservices.
-- `Services\SaeNfceDownloader.cs`: regra de negócio de consulta, partição automática e download.
-- `Infrastructure\StateRepository.cs`: cursor incremental local.
-- `Services\CertificateService.cs`: leitura de certificados do Windows.
+1.  **Certificado:** Selecione o certificado e-CNPJ correspondente ao CNPJ emissor das notas.
+2.  **Período:** Defina a data inicial e final. O SAE permite consultas de até 100 dias retroativos.
+3.  **Ambiente:** Escolha entre Produção ou Homologação.
+4.  **Cursor:** O aplicativo salva automaticamente a data da última nota baixada, facilitando a continuidade de processos de escrituração.
+
+## 📜 Conformidade
+Esta ferramenta foi validada conforme o manual **SAE-NFC-e v1.0.0** e utiliza o namespace oficial `http://www.portalfiscal.inf.br/nfe`.
+
+---
+*Desenvolvido seguindo as melhores práticas de C# e padrões da Nota Fiscal Eletrônica.*

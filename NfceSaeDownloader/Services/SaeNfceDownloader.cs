@@ -8,6 +8,9 @@ using NfceSaeDownloader.Models;
 
 namespace NfceSaeDownloader.Services
 {
+    /// <summary>
+    /// Classe de alto nível que coordena as operações de listagem e download de NFC-e.
+    /// </summary>
     public sealed class SaeNfceDownloader
     {
         private readonly SefazSaeSoapClient _client;
@@ -15,6 +18,9 @@ namespace NfceSaeDownloader.Services
         private readonly LogService _log;
         private readonly StateRepository _state;
 
+        /// <summary>
+        /// Inicializa o coordenador de downloads.
+        /// </summary>
         public SaeNfceDownloader(SaeConfig config, LogService log)
         {
             _config = config;
@@ -23,9 +29,14 @@ namespace NfceSaeDownloader.Services
             _state = new StateRepository(config.DiretorioSaida);
         }
 
+        /// <summary>
+        /// Consulta a lista de chaves de acesso no período, aplicando filtros opcionais e salvando o estado do cursor.
+        /// </summary>
         public List<NfceChaveInfo> ConsultarChaves(DateTime dataInicial, DateTime dataFinal, bool autoDividirPeriodo, string numeroFiltro, string serieFiltro, string cnpjCertificado)
         {
             var list = new List<NfceChaveInfo>();
+
+            // Inicia a busca recursiva para lidar com o limite de 2000 chaves (cStat 101)
             SearchRange(dataInicial, dataFinal, autoDividirPeriodo, list);
 
             var query = list.AsEnumerable();
@@ -61,6 +72,9 @@ namespace NfceSaeDownloader.Services
             return _state.LoadCursor(_config.Ambiente, cnpjCertificado);
         }
 
+        /// <summary>
+        /// Realiza o download individual dos XMLs para as chaves selecionadas.
+        /// </summary>
         public List<DownloadResult> BaixarXmls(IEnumerable<NfceChaveInfo> chaves)
         {
             var result = new List<DownloadResult>();
@@ -108,6 +122,10 @@ namespace NfceSaeDownloader.Services
             return result;
         }
 
+        /// <summary>
+        /// Método recursivo para busca de chaves. Implementa a lógica de subdivisão de períodos (Particionamento Binário)
+        /// para contornar o limite de 2000 chaves por consulta da SEFAZ SP.
+        /// </summary>
         private void SearchRange(DateTime inicio, DateTime fim, bool autoDividirPeriodo, List<NfceChaveInfo> destino)
         {
             if (fim < inicio)

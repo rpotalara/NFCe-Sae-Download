@@ -11,17 +11,26 @@ using NfceSaeDownloader.Models;
 
 namespace NfceSaeDownloader.Services
 {
+    /// <summary>
+    /// Cliente SOAP para comunicação direta com os WebServices da SEFAZ SP (SAE-NFC-e).
+    /// </summary>
     public sealed class SefazSaeSoapClient
     {
         private readonly SaeConfig _config;
         private readonly LogService _log;
 
+        /// <summary>
+        /// Inicializa uma nova instância do cliente.
+        /// </summary>
         public SefazSaeSoapClient(SaeConfig config, LogService log)
         {
             _config = config;
             _log = log;
         }
 
+        /// <summary>
+        /// Consome o serviço NFCeListagemChaves para obter chaves de acesso no período informado.
+        /// </summary>
         public NfceListagemResponse ListarChaves(DateTime dataHoraInicial, DateTime? dataHoraFinal)
         {
             var ns = SaeConstants.SaeNamespace;
@@ -35,14 +44,19 @@ namespace NfceSaeDownloader.Services
                 payload.Add(new XElement(XName.Get("dataHoraFinal", ns), dataHoraFinal.Value.ToString("yyyy-MM-ddTHH:mm")));
             }
 
+            // Valida o XML contra o schema XSD antes de enviar
             XmlValidationService.ValidarListagem(payload);
 
+            // Envolve em nfeDadosMsg com o namespace específico do serviço (correção cStat 242)
             var wrapped = new XElement(XName.Get("nfeDadosMsg", SaeConstants.ListagemServiceNamespace), payload);
             var envelope = BuildSoapEnvelope(wrapped);
             var xml = PostSoap(_config.UrlListagem, SaeConstants.ListagemSoapAction, envelope, _config.Certificado);
             return ParseListagem(xml);
         }
 
+        /// <summary>
+        /// Consome o serviço NFCeDownloadXML para obter o XML completo de uma NFC-e específica.
+        /// </summary>
         public NfceDownloadResponse DownloadXml(string chave)
         {
             var ns = SaeConstants.SaeNamespace;
@@ -51,8 +65,10 @@ namespace NfceSaeDownloader.Services
                 new XElement(XName.Get("tpAmb", ns), (int)_config.Ambiente),
                 new XElement(XName.Get("chNFCe", ns), chave));
 
+            // Valida o XML contra o schema XSD antes de enviar
             XmlValidationService.ValidarDownload(payload);
 
+            // Envolve em nfeDadosMsg com o namespace específico do serviço (correção cStat 242)
             var wrapped = new XElement(XName.Get("nfeDadosMsg", SaeConstants.DownloadServiceNamespace), payload);
             var envelope = BuildSoapEnvelope(wrapped);
             var xml = PostSoap(_config.UrlDownload, SaeConstants.DownloadSoapAction, envelope, _config.Certificado);
